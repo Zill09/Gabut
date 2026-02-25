@@ -1,0 +1,29 @@
+/* Style modal */
+.modal {
+  display: none; /* default hidden */
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 60%; /* bisa diubah */
+  max-width: 600px;
+  min-width: 300px;
+  resize: both;      /* bikin bisa resize manual */
+  overflow: auto;    /* scroll kalau kebesaran */
+}
+
+.close-btn {
+  float: right;
+  font-size: 50px;
+  cursor: pointer;
+   color: red;
+}
+#btn3 { border-radius: 5px;

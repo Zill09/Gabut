@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supabase Simple Project</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: sans-serif; padding: 20px; background:
+linear-gradient(135deg,black,white) }
+input, textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 6px;
+border: 5px solid #ccc
+  border-bottom-color: grey
+ ; 
+}
+#btn2 { padding: 10ppx 22px; margin: 5px 0; border-radius: 6px; cursor: pointer; 
+  background-color: ;
+}
+
+#btn1 { padding: 1px 1px; margin: 1px 0; border-radius: 6px; cursor: pointer; 
+  background-color: ;
+}
+
+
+.page {  background: rgba(255,255,255,0.8); padding: 10px; margin-top: 10px; border-radius:
+10px; border:5px;
+  border-bottom-color: red;
+}
+.username { font-weight: bold; margin-bottom: 10px; 
+  
+}
+ 
+/* Animasi rainbow untuk h2 */
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+h2 {
+  font-weight: bold;
+  text-align: ;
+
+  background: linear-gradient(90deg, red, black, yellow, green, blue,black,
+  indigo,maroon);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: rainbow 5s ease infinite;
+}
+ /* html, body {background: linear-gradient(135deg,black,white); height:150%; */
+ 
+}
+
+}
+
+/* animasi */
+@keyframes moveBtn {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(20px); }
+  100% { transform: translateX(0); }
+}
+
+/* wrapper supaya tombol bisa “scroll” */
+.marquee-wrapper {
+  width: 100% ; 
+  height: 100%/* lebar area scroll */
+  overflow: hidden;      /* sembunyikan yang keluar area */
+  border: 0px solid #333;
+}
+
+/* animasi marquee */
+@keyframes moveBtn {
+  0%   { transform: translateX(1000%); }
+  1000% { transform: translateX(-100p%); }
+}
+
+.marquee-btn {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 20px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg,red,black,black,black);
+  color: white;
+  font-weight: bold;
+  background-size: 900%;
+
+  animation: rainbow 5s ease infinite;
+  animation: moveBtn 5s linear infinite;
+}
+
+}
+
+
+
+
+</style>
+</head>
+<body>
+<h2>Website Gabut</h2>
+ <div class="marquee-wrapper">
+  <button id="btn1"
+            class="marquee-btn"
+            onclick="playAudio()"
+            
+            ><marquee scrollamount="6" >klik</marquee></button></div>
+<input type="text" id="username" placeholder="Harus masukkin nama 😠🔪">
+<textarea id="diary" placeholder="Ketik apapun..."></textarea>
+<button id="btn2"
+onclick="addPage()">kirim pencet ini co</button>
+
+
+<!-- Tombol buka note -->
+<button  id="btn3"
+         onclick="openNote()">Ini Note</button>
+
+<!-- Modal / pop-up -->
+<div id="noteModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeNote()">&times;</span>
+    <h3>Note*</h3>
+    <text>
+      <p>di internal <b>javaScript</b>, ada sistem check <b>user_id</b> yang gunanya buat identifikasi
+      user.</p>
+      
+     <p> logika kerjanya itu: <i><b>(jika username saat ini===entry.username), maka fungsi hapus
+      akan bersifat true(enable), begitupun sebaliknya.</b></i> </p>
+     <p> kalo mau hapus teks yang ada tapi tombolnya ga berfungsi, coba ketik
+      apapun tapi pake username yang sama dengan teks yang ada, itu bakal
+      trigger<b><p>check entry.username</p></b>buat enable tombol hapus
+      
+      
+    </text>
+  </div>
+</div>
+
+
+
+
+<div id="pages"></div>
+
+<script src="audio.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Inisialisasi Supabase
+const supabaseUrl = "https://esktafrjozqjuaxqptxd.supabase.co"; // ganti dengan project lu
+const supabaseKey =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVza3RhZnJqb3pxanVheHFwdHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMTQyMDcsImV4cCI6MjA4Njc5MDIwN30.NqoCsfGc8Az_DGutakVRBuAySmOtAS7DEdoFvB7VGk0";
+// ganti dengan key lu
+const base = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Cek user_id di localStorage, kalau belum ada buat random id
+let userId = window.localStorage.getItem("my_user_id");
+if(!userId) {
+  userId = window.crypto.randomUUID(); // buat id unik
+  localStorage.setItem("my_user_id", userId);
+}
+
+
+
+// Fungsi tambah diary
+async function addPage() {
+    const username = document.getElementById("username").value || "BAHLIL🫵😹";
+    const text = document.getElementById("diary").value;
+    if(!text) return alert("ketik dulu biji!");
+
+    const { data, error } = await base
+        .from('my_diary') // table baru
+        .insert([{ username: username, text: text, user_id: userId }]);
+
+    if(error) return alert("Gagal simpan: " + error.message);
+
+    document.getElementById("diary").value = "";
+    renderPages();
+}
+
+// Fungsi render diary dari Supabase
+async function renderPages() {
+    const { data, error } = await base
+        .from('my_diary')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    const container = document.getElementById("pages");
+    container.innerHTML = "";
+
+    if(error) return container.innerHTML = "<p>Gagal memuat diary</p>";
+
+    const currentUsername = document.getElementById("username").value || "Anonim";
+
+    data.forEach(entry => {
+        const page = document.createElement("div");
+        page.className = "page";
+
+        const userDiv = document.createElement("div");
+        userDiv.className = "username";
+        userDiv.innerText = entry.username || "Anonim";
+
+        const textDiv = document.createElement("div");
+        textDiv.innerText = entry.text;
+
+        // Tombol hapus
+        const deleteBtn = document.createElement("button");
+        deleteBtn.innerText = "Hapus";
+
+        if(currentUsername === entry.username) {
+            deleteBtn.onclick = async () => {
+                const { error } = await base
+                    .from('my_diary')
+                    .delete()
+                    .eq('id', entry.id)
+                    .eq('user_id', userId);
+                    
+                if(error) return alert("Gagal hapus: " + error.message);
+                renderPages();
+            }
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.style.opacity = 0.5;
+            deleteBtn.title = "Hanya pemilik yang bisa hapus";
+        }
+
+        page.appendChild(userDiv);
+        page.appendChild(textDiv);
+        page.appendChild(deleteBtn);
+        container.appendChild(page);
+    });
+}
+
+
+
+// Load diary saat halaman dibuka
+window.onload = () => {
+    userId = localStorage.getItem("my_user_id");
+    renderPages();
+}
+</script>
+
+</body>
+</html>
